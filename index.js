@@ -101,7 +101,8 @@
       .slice(page * 10, page * 10 + 10)
       .forEach((item) => {
         const title = item.title.replace(/<em class="keyword">(.*?)<\/em>/g, '$1')
-        const pic = item.pic.replace(/http/g, 'https') + '@640w_400h_1c.webp'
+        const pic = item.pic.replace(/http/g, 'https') + '@672w_378h_1c'
+        const webp = pic + '.webp'
         let DOM = s2d(`
         <div class="bili-video-card" data-report="partition_recommend.content">
   <div class="bili-video-card__skeleton hide">
@@ -123,7 +124,7 @@
             </svg><span class="bili-watch-later__tip" style="display: none;"></span></div>
           <picture class="v-img bili-video-card__cover">
             <!---->
-            <source srcset="${pic}"
+            <source srcset="${webp}"
               type="image/webp"><img
               src="${pic}"
               alt="${title}" loading="lazy" onload="">
