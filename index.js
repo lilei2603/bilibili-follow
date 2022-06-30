@@ -87,7 +87,7 @@
   // 换一换
   async function refresh() {
     page++
-    if (videoList.length <= page * 10 + 10) {
+    if (videoList.length <= page * 10 + 14) {
       await API.getNewVideo()
     }
     drawVideos()
@@ -98,7 +98,7 @@
     VIDEO_DOM.innerHTML = ''
 
     videoList
-      .slice(page * 10, page * 10 + 10)
+      .slice(page * 10, page * 10 + 14)
       .forEach((item) => {
         const title = item.title.replace(/<em class="keyword">(.*?)<\/em>/g, '$1')
         const pic = item.pic.replace(/http/g, 'https') + '@672w_378h_1c'
