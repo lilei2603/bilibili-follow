@@ -11,20 +11,31 @@
   ]
 
   let currentUserIndex = 0
-
-  let currentPage = 1
-  let page = 0
-  let videoList = []
+  let pageSize = 14
+  let page = 1
+  let total = 0
 
   const API = {
-    getVideoList: async (uid, pageNum, pageSize = 30) => {
+    getVideoList: async (uid, pageNum) => {
       const res = await fetch(
         `https://api.bilibili.com/x/space/arc/search?mid=${uid}&ps=${pageSize}&tid=0&pn=${pageNum}&order=pubdate&jsonp=jsonp`
       )
       const json = await res.json()
-      if (json.code == 0) return json.data.list.vlist
+      if (json.code == 0) return json.data
       return Promise.reject("Can't get video list ,please check your network")
     }
+  }
+
+  /** 根据clientWidth判断pageSize */
+  function getPageSizeByBreakpoint() {
+    const clientWidth = document.documentElement.clientWidth
+    const BREAK_POINT = [0, 1100, 1700, 2200]
+    const PAGE_SIZE_RECORD = [8, 10, 12, 14]
+    return PAGE_SIZE_RECORD[
+      BREAK_POINT.reduce((flag, cur, index) => {
+        return cur > clientWidth ? flag : index
+      }, 0)
+    ]
   }
 
   // 播放量格式化
@@ -86,19 +97,18 @@
   }
   // 换一换
   async function refresh() {
-    page++
-    if (videoList.length <= page * 10 + 14) {
-      const vlist = await API.getVideoList(USERS[currentUserIndex].channel_id, currentPage)
-      videoList = videoList.concat(vlist)
-    }
-    drawVideos()
+    if (page * pageSize < total) page++
+    else page = 1
+    await drawVideos()
   }
 
-  function drawVideos() {
+  async function drawVideos() {
+    const data = await API.getVideoList(USERS[currentUserIndex].channel_id, page)
+    total = data.page.count
+
     const VIDEO_DOM = document.querySelector('#bili_custom .variety-body')
     VIDEO_DOM.innerHTML = ''
-
-    videoList.slice(page * 10, page * 10 + 14).forEach((item) => {
+    data.list.vlist.forEach((item) => {
       const title = item.title.replace(/<em class="keyword">(.*?)<\/em>/g, '$1')
       const pic = item.pic.replace(/http/g, 'https') + '@672w_378h_1c'
       const webp = pic + '.webp'
@@ -167,9 +177,8 @@
 
   async function injectDOM(e) {
     currentUserIndex = e ? e.target.getAttribute('index') : 0
-    videoList = []
-    currentPage = 1
-    page = 0
+    page = 1
+    pageSize = getPageSizeByBreakpoint()
 
     const DOM = `
     <div id="bili_custom">
@@ -199,18 +208,17 @@
     content.insertBefore(init, anchor)
 
     // 插入最新视频
-    const vlist = await API.getVideoList(USERS[currentUserIndex].channel_id, currentPage)
-    videoList = videoList.concat(vlist)
-    drawVideos()
+    await drawVideos()
     // 点击事件
     init.querySelector('.custom-refresh').addEventListener('click', refresh)
   }
 
-  window.addEventListener(
-    'load',
-    async () => {
-      await injectDOM()
-    },
-    false
-  )
+  window.addEventListener('load', async () => {
+    await injectDOM()
+  })
+  window.addEventListener('resize', async () => {
+    pageSize = getPageSizeByBreakpoint()
+    const data = await API.getVideoList(USERS[currentUserIndex].channel_id, page)
+    drawVideos(data.list.vlist)
+  })
 })()
