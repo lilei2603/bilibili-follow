@@ -1,4 +1,4 @@
-; (function () {
+;(function () {
   'use strict'
   GM_addStyle()
 
@@ -6,7 +6,7 @@
     {
       key_words: 'Anthony Fu',
       channel_id: 668380,
-      avatar: 'https://i1.hdslb.com/bfs/face/519cb17285e6b9450a738472cb0b95aeb8676547.jpg@240w_240h_1c_1s.webp',
+      avatar: 'https://i1.hdslb.com/bfs/face/519cb17285e6b9450a738472cb0b95aeb8676547.jpg@240w_240h_1c_1s.webp'
     }
   ]
 
@@ -17,12 +17,13 @@
   let videoList = []
 
   const API = {
-    getNewVideo: async () => {
-      let res = await fetch(
-        `https://api.bilibili.com/x/space/arc/search?mid=${USERS[currentUserIndex].channel_id}&ps=30&tid=0&pn=${currentPage}&order=pubdate&jsonp=jsonp`
+    getVideoList: async (uid, pageNum) => {
+      const res = await fetch(
+        `https://api.bilibili.com/x/space/arc/search?mid=${uid}&ps=30&tid=0&pn=${pageNum}&order=pubdate&jsonp=jsonp`
       )
       const json = await res.json()
-      videoList = videoList.concat(json.data.list.vlist)
+      if (json.code == 0) return json.data.list.vlist
+      return Promise.reject("Can't get video list ,please check your network")
     }
   }
 
@@ -32,8 +33,7 @@
   }
 
   function s2d(string) {
-    return new DOMParser().parseFromString(string, 'text/html').body
-      .childNodes[0]
+    return new DOMParser().parseFromString(string, 'text/html').body.children?.[0]
   }
   // 播放时长格式化
   function timeFormat(time) {
@@ -44,51 +44,52 @@
     res.unshift(String(s).padStart(2, '0'))
     res.unshift(String(m % 60).padStart(2, '0'))
     res.unshift(String(parseInt(m / 60)).padStart(2, '0'))
- 
+
     return res.join(':')
   }
   // 日期时间格式化
   function timeago(dateTimeStamp) {
-    const minute = 60;      //把分，时，天，周，半个月，一个月用毫秒表示
-    const hour = minute * 60;
-    const day = hour * 24;
+    const minute = 60 //把分，时，天，周，半个月，一个月用毫秒表示
+    const hour = minute * 60
+    const day = hour * 24
     // const week = day * 7;
-    const month = day * 30;
-    const now = parseInt(new Date().getTime() / 1000);   //获取当前时间毫秒
-    const diffValue = now - dateTimeStamp;//时间差
+    const month = day * 30
+    const now = parseInt(new Date().getTime() / 1000) //获取当前时间毫秒
+    const diffValue = now - dateTimeStamp //时间差
     let result = ''
     if (diffValue < 0) {
-      return;
+      return
     }
-    const minC = diffValue / minute;  //计算时间差的分，时，天，周，月
-    const hourC = diffValue / hour;
-    const dayC = diffValue / day;
-    const monthC = diffValue / month;
-    const datetime = new Date();
-    datetime.setTime(dateTimeStamp * 1000);
-    const Nyear = datetime.getFullYear();
-    const Nmonth = datetime.getMonth() + 1;
-    const Ndate = datetime.getDate();
+    const minC = diffValue / minute //计算时间差的分，时，天，周，月
+    const hourC = diffValue / hour
+    const dayC = diffValue / day
+    const monthC = diffValue / month
+    const datetime = new Date()
+    datetime.setTime(dateTimeStamp * 1000)
+    const Nyear = datetime.getFullYear()
+    const Nmonth = datetime.getMonth() + 1
+    const Ndate = datetime.getDate()
     if (dayC >= 1 && dayC < 2) {
-      result = "昨天"
+      result = '昨天'
     } else if (hourC >= 1 && hourC <= 23) {
-      result = " " + parseInt(hourC) + "小时前"
+      result = ' ' + parseInt(hourC) + '小时前'
     } else if (minC >= 1 && minC <= 59) {
-      result = " " + parseInt(minC) + "分钟前"
+      result = ' ' + parseInt(minC) + '分钟前'
     } else if (diffValue >= 0 && diffValue <= minute) {
-      result = "刚刚"
+      result = '刚刚'
     } else if (monthC < 12) {
-      result = Nmonth + "-" + Ndate
+      result = Nmonth + '-' + Ndate
     } else {
-      result = Nyear + "-" + Nmonth + "-" + Ndate
+      result = Nyear + '-' + Nmonth + '-' + Ndate
     }
-    return result;
+    return result
   }
   // 换一换
   async function refresh() {
     page++
     if (videoList.length <= page * 10 + 14) {
-      await API.getNewVideo()
+      const vlist = await API.getVideoList(USERS[currentUserIndex].channel_id, currentPage)
+      videoList = videoList.concat(vlist)
     }
     drawVideos()
   }
@@ -97,13 +98,11 @@
     const VIDEO_DOM = document.querySelector('#bili_custom .variety-body')
     VIDEO_DOM.innerHTML = ''
 
-    videoList
-      .slice(page * 10, page * 10 + 14)
-      .forEach((item) => {
-        const title = item.title.replace(/<em class="keyword">(.*?)<\/em>/g, '$1')
-        const pic = item.pic.replace(/http/g, 'https') + '@672w_378h_1c'
-        const webp = pic + '.webp'
-        let DOM = s2d(`
+    videoList.slice(page * 10, page * 10 + 14).forEach((item) => {
+      const title = item.title.replace(/<em class="keyword">(.*?)<\/em>/g, '$1')
+      const pic = item.pic.replace(/http/g, 'https') + '@672w_378h_1c'
+      const webp = pic + '.webp'
+      let DOM = s2d(`
         <div class="bili-video-card" data-report="partition_recommend.content">
   <div class="bili-video-card__skeleton hide">
     <div class="bili-video-card__skeleton--cover"></div>
@@ -162,8 +161,8 @@
   </div>
 </div>
 `)
-        VIDEO_DOM.append(DOM)
-      })
+      VIDEO_DOM.append(DOM)
+    })
   }
 
   async function injectDOM(e) {
@@ -195,16 +194,16 @@
     let content = document.querySelector('.bili-layout')
     let anchor = document.querySelectorAll('.bili-grid')[2]
     let init = s2d(DOM)
-    document.querySelector('#bili_custom') &&
-    document.querySelector('#bili_custom').remove()
+    document.querySelector('#bili_custom') && document.querySelector('#bili_custom').remove()
     // 插入初始模版
     content.insertBefore(init, anchor)
 
     // 插入最新视频
-    await API.getNewVideo()
+    const vlist = await API.getVideoList(USERS[currentUserIndex].channel_id, currentPage)
+    videoList = videoList.concat(vlist)
     drawVideos()
     // 点击事件
-    document.querySelector('.custom-refresh').addEventListener('click', refresh)
+    init.querySelector('.custom-refresh').addEventListener('click', refresh)
   }
 
   window.addEventListener(
@@ -212,6 +211,6 @@
     async () => {
       await injectDOM()
     },
-    false,
+    false
   )
 })()
