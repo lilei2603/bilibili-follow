@@ -17,9 +17,9 @@
   let videoList = []
 
   const API = {
-    getVideoList: async (uid, pageNum) => {
+    getVideoList: async (uid, pageNum, pageSize = 30) => {
       const res = await fetch(
-        `https://api.bilibili.com/x/space/arc/search?mid=${uid}&ps=30&tid=0&pn=${pageNum}&order=pubdate&jsonp=jsonp`
+        `https://api.bilibili.com/x/space/arc/search?mid=${uid}&ps=${pageSize}&tid=0&pn=${pageNum}&order=pubdate&jsonp=jsonp`
       )
       const json = await res.json()
       if (json.code == 0) return json.data.list.vlist
