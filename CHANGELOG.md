@@ -25,3 +25,9 @@ All notable changes to this project will be documented in this file. See [standa
 ### Features
 
 - 🚀 新增自定义UP主切换功能
+
+## 1.1 (2022-07-01)
+
+### Bug Fixes
+
+- 🧩 修复分页展示bug
