@@ -73,7 +73,6 @@
   function timeFormat(time) {
     let res = []
     let [s = 0, m = 0] = time.split(':').reverse()
-    console.log(m, s)
     res.unshift(String(s).padStart(2, '0'))
     res.unshift(String(m % 60).padStart(2, '0'))
     res.unshift(String(parseInt(m / 60)).padStart(2, '0'))
@@ -367,7 +366,6 @@
     document.querySelector('#bili_custom') &&
     document.querySelector('#bili_custom').remove()
     // 插入初始模版
-    console.log(anchor)
     content.insertBefore(init, anchor)
     // 插入关注UP主按钮
     drawFavorites()
