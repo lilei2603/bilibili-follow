@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         B站 Antfu
 // @namespace    https://github.com/lilei2603/bilibili-follow
-// @version      1.0
+// @version      1.1
 // @description  B站首页显示Antfu专区！
 // @author       Lei
 // @match        https://www.bilibili.com/*
