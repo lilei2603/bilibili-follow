@@ -26,6 +26,7 @@
   let isShowFavorite = false
   // 窗口滚动距离
   let scrollTop = 0
+  let totalCount = 0
   const API = {
     // 获取用户视频列表
     getNewVideo: async () => {
@@ -33,6 +34,7 @@
         `https://api.bilibili.com/x/space/arc/search?mid=${USERS[currentUserIndex].mid}&ps=30&tid=0&pn=${currentPage}&order=pubdate&jsonp=jsonp`
       )
       const json = await res.json()
+      totalCount = json.data.page.count
       videoList = videoList.concat(json.data.list.vlist)
     },
     // 根据用户ID获取用户信息
@@ -118,7 +120,15 @@
   // 换一换
   async function refresh() {
     page++
-    if (videoList.length <= page * 10 + 14) {
+    if(videoList.length < totalCount){
+      currentPage++
+      await API.getNewVideo()
+    }else {
+      if(videoList.length % totalCount == 0){
+        currentPage = 1
+      }else{
+        currentPage++
+      }
       await API.getNewVideo()
     }
     drawVideos()
