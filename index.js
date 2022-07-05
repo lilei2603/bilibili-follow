@@ -320,13 +320,6 @@
     }
     appendFavoriteItem()
   }
-  function goLiveRoom(e) {
-    console.log(e);
-      if (e.target.nodeName == 'BUTTON') {
-          window.open(e.target.datatset.liveRoom, '__target')
-          console.log(e)
-      }
-  }
   // 初始化容器
   async function injectDOM() {
     // currentUserIndex = mid ? USERS.findIndex(item => item.mid == mid) : 0
@@ -394,7 +387,6 @@
     document.querySelector('.custom-refresh').addEventListener('click', refresh)
     document.querySelector('#favorite-btn').addEventListener('click', showFavorite)
     document.querySelector('.anticon').addEventListener('click', showFavorite)
-    document.querySelector('#goLiveRoom').addEventListener('click', goLiveRoom)
     document.querySelector('.btn-primary').addEventListener('click', appendFavorite)
   }
 
