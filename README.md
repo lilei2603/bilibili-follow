@@ -16,3 +16,6 @@ B站首页展示Antfu专区
 ### 2. 关注列表展示：
 ![关注列表展示](./example/favorite.jpg)
 
+### 3. 直播快捷：
+![直播提示](./example/live.jpg)
+
