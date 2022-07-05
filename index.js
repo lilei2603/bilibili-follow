@@ -73,6 +73,7 @@
   function timeFormat(time) {
     let res = []
     let [s = 0, m = 0] = time.split(':').reverse()
+    console.log(m, s)
     res.unshift(String(s).padStart(2, '0'))
     res.unshift(String(m % 60).padStart(2, '0'))
     res.unshift(String(parseInt(m / 60)).padStart(2, '0'))
@@ -211,7 +212,7 @@
     const refreshBtn = document.querySelector('.custom-refresh')
     const refreshBtnParent = refreshBtn.parentNode
     const favorite = s2d(`
-    <button class="primary-btn roll-btn favorite-btn">
+    <button class="primary-btn roll-btn favorite-btn" id="favorite-btn">
       <svg style="transform: rotate(180deg);">
         <use xlink:href="#widget-arrow"></use>
       </svg>
@@ -319,12 +320,20 @@
     }
     appendFavoriteItem()
   }
+  function goLiveRoom(e) {
+    console.log(e);
+      if (e.target.nodeName == 'BUTTON') {
+          window.open(e.target.datatset.liveRoom, '__target')
+          console.log(e)
+      }
+  }
   // 初始化容器
   async function injectDOM() {
     // currentUserIndex = mid ? USERS.findIndex(item => item.mid == mid) : 0
     videoList = []
     currentPage = 1
     page = 0
+    const { data } = await API.getUserInfoByMid(USERS[currentUserIndex].mid);
 
     const DOM = `
     <div id="bili_custom">
@@ -337,6 +346,14 @@
               <a class="title" href="https://space.bilibili.com/${USERS[currentUserIndex].mid}/video" target="_blank">
                 <span>${USERS[currentUserIndex].key_words}</span>
               </a>
+              <div>
+                <a class="primary-btn roll-btn favorite-btn" id="goLiveRoom" href="${data.live_room.url}" target="_blank"  style="${data.live_room.liveStatus == '0' ? 'display:none;':''}">
+                 <span >在直播哦</span>
+                 <svg >
+                   <use xlink:href="#widget-arrow"></use>
+                 </svg>
+               </a>
+              </div>
             </div>
             <div class="right">
               <button class="primary-btn roll-btn custom-refresh">
@@ -366,6 +383,7 @@
     document.querySelector('#bili_custom') &&
     document.querySelector('#bili_custom').remove()
     // 插入初始模版
+    console.log(anchor)
     content.insertBefore(init, anchor)
     // 插入关注UP主按钮
     drawFavorites()
@@ -374,8 +392,9 @@
     drawVideos()
     // 点击事件
     document.querySelector('.custom-refresh').addEventListener('click', refresh)
-    document.querySelector('.favorite-btn').addEventListener('click', showFavorite)
+    document.querySelector('#favorite-btn').addEventListener('click', showFavorite)
     document.querySelector('.anticon').addEventListener('click', showFavorite)
+    document.querySelector('#goLiveRoom').addEventListener('click', goLiveRoom)
     document.querySelector('.btn-primary').addEventListener('click', appendFavorite)
   }
 
