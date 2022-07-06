@@ -31,3 +31,9 @@ All notable changes to this project will be documented in this file. See [standa
 ### Bug Fixes
 
 - 🧩 修复分页展示bug
+
+## 2.1 (2022-07-06)
+
+### Features
+
+- 🚀 新增UP主直播状态提醒
